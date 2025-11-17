@@ -259,7 +259,7 @@ Hence, the result of the not operation is `010`, which is 2 in binary.
 > #### Left Shift & Right Shift Restrictions
 > There are a few notable restrictions placed on these shift operations. For starters, you cannot shift bits a negative number of times—that just doesn't make sense! Also, shifting for more than the number of bits allocated to your variable is considered _undefined_. You *can* do it, but its output is not guaranteed to be constant for a given value. Finally, although not a restriction per-say, shifting 0 times simply doesn't perform a shift.
 
-
+**unsigned and signed** during comparisons toggles their signs, 
 ### Your Turn!
 1. Complete a truth table for each of the following. Consider all values to be unsigned. Convert to decimal when complete.
 - `8 & 2`
@@ -370,6 +370,24 @@ Hence, `111 & 111` &rArr; `111`, which is 7 in decimal.
 
 </details>
 
+When a normal int (signed) and an unsigned int are compared in C or C++, the signed changed into an unsigned number before
+comparing.
+
+This becomes a problem when the signed number is negative.
+Eg:
+int a = -10;
+unsigned int b = 30;
+
+We normally think: -10 < 30, so it should be true.
+
+But the computer does not compare them like that. It converts -10 to a huge positive number because
+unsigned numbers cannot store negatives. So -10 becomes a very big number internally. Then the
+comparison becomes something like:
+4294967291 < 30 → false.
+That’s why the result feels wrong. It looks like the sign got flipped.
+In short:
+Negative numbers then turn into very large values, and the comparison gives unexpected results.
+
 ## Chapter 3: Applying Bitwise Operations in C
 
 This chapter is all about writing C code that utilizes bitwise operators. Before we get to doing bitwise operations, we should begin by writing a function that can write the binary equivalent of a given variable.
@@ -446,6 +464,23 @@ As I mentioned above, each digit is a conglomeration of three flags, each repres
 
 In other words, all permissions are given to all.
 
+#include <iostream>
+#include <limits>
+
+void LessThan(uint64_t a, int64_t b)
+{
+    if(a < b)
+        std::cout << a << " < " << b << "\n";
+    else
+        std::cout << a << " >= " << b << "\n";
+}
+
+extern "C" void app_main(void)
+{
+    LessThan(1, std::numeric_limits<int64_t>::lowest());
+}
+
+
 #### Task
 
 Design a simple permissions checker that takes in a full file permission value (a three-digit number) and checks for a given set of specific permissions (i.e., owner write, everyone execute, etc.). For an example, check the `Chapter 3` folder.
@@ -467,25 +502,3 @@ Being that the subnet mask is a mask, you might be catching on to its purpose. F
 > #### Network Address
 > The **network address** has all _host_ bits set to `0`. This means any bit surrendered to create
 > a subnet still could be set to `1`. 
-
-> #### Read More!
-> Learn more about subnets by checking out [this](https://networklessons.com/subnetting/subnetting-in-binary) website.
-
-#### Task
-
-In C, write a program that takes in an IPv4 address and a subnet mask and finds and outputs the network address that the IPv4 address lives in. For an example, check the `Chapter 3` folder.
-
-<details>
-    <summary>Stuck? Grab a hint.</summary>
-
-You'll need to store each byte of the address and mask as a numerical value. To find the network address, consider which (bitwise) operation between the mask and address will create the intended effect.
-
-</details>
-
-## Closing
-I hope this explainer was useful for you! I wrote it because I wanted to learn about bitwise operations myself. I've checked it, but some things could be wrong, so feel free to correct me via a pull request. I'm so happy to have been able to provide this resource for you!
-
-
-## About Me
-
-Hi! I'm Jackson, a student of computer science & French at Lafayette College and an aspiring researcher and professor in computer science. I'm currently interested in the fields of bioinformatics and low-level programming/systems. To learn more about me, check out my [site](https://jacksoneshbaugh.github.io).
